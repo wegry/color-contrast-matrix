@@ -22,7 +22,7 @@ function attemptGrayscaleParse(rawParams: string) {
   const parsed = new URLSearchParams(rawParams)
 
   const colors = parsed.get('🌈')
-  return !colors
+  return colors != null ? !colors : false
 }
 
 export const initialState: state = {
