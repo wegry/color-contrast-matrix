@@ -4,6 +4,7 @@ interface state {
   colors: string[]
   grayscale: boolean
   bulkEditValue: string
+  minimumContrast: number | 'not set' | 'invalid'
 }
 
 const seychellesFlagColors = ['blue', 'yellow', 'red', 'white', 'green']
@@ -26,6 +27,7 @@ function attemptGrayscaleParse(rawParams: string) {
 
 export const initialState: state = {
   colors: attemptColorParse(window.location.search) || seychellesFlagColors,
+  minimumContrast: 'not set',
   grayscale: attemptGrayscaleParse(window.location.search),
   bulkEditValue: seychellesFlagColors.join('\n')
 }

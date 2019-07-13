@@ -1,5 +1,5 @@
 // https://stackoverflow.com/a/9733420/1924257
-import React from 'react'
+import React, { FormEvent } from 'react'
 import './App.css'
 import { reducer, initialState } from './reducer'
 import {
@@ -56,7 +56,8 @@ const ContrastDisplay: React.FC<{
   second: string
   i: number
   j: number
-}> = React.memo(({ first, second, i, j }) => {
+  minContrast: number | 'invalid' | 'not set'
+}> = React.memo(({ first, second, i, j, minContrast }) => {
   const dontDisplay = <div key={first + second + i + j} />
   if (
     first === second ||
@@ -82,9 +83,8 @@ const ContrastDisplay: React.FC<{
     return dontDisplay
   }
 
-  const contrastRatio = formatDecimal.format(
-    contrast(...(rgbs as [triple, triple]))
-  )
+  const rawContrast = contrast(...(rgbs as [triple, triple])),
+    contrastRatio = formatDecimal.format(rawContrast)
 
   const boxShadow = [
     [borderColor(second), 'light-column'],
@@ -92,7 +92,7 @@ const ContrastDisplay: React.FC<{
   ].flatMap(([borderColor, borderClassName]) =>
     borderColor === undefined ? [] : [borderClassName]
   )
-  const extraClasses = (() => {
+  const borderClasses = (() => {
     if (boxShadow.length === 2) {
       return 'light-both'
     } else {
@@ -100,10 +100,20 @@ const ContrastDisplay: React.FC<{
     }
   })()
 
+  const contrastThresholdClass = (() => {
+    switch (minContrast) {
+      case 'invalid':
+      case 'not set':
+        return ''
+      default:
+        return rawContrast > minContrast ? '' : 'below-contrast-threshold'
+    }
+  })()
+
   return (
     <div key={first + second + j} className="contrast-display">
       <div
-        className={`swatch ${extraClasses}`.trim()}
+        className={`swatch ${contrastThresholdClass} ${borderClasses}`.trim()}
         title={`(${second}, ${first})`}
         style={{
           background: `linear-gradient(45deg, ${first} 50%, ${second} 50%)`
@@ -114,8 +124,32 @@ const ContrastDisplay: React.FC<{
   )
 })
 
+function useTrigger(f: () => void) {
+  return React.useCallback(() => {
+    f()
+  }, [])
+}
+
 export default () => {
   const [state, dispatch] = React.useReducer(reducer, initialState)
+
+  const addColor = useTrigger(() => {
+    dispatch({ type: 'addColor' })
+
+    setTimeout(() => {
+      const input = document.querySelector('.colors input')! as HTMLInputElement
+
+      input.focus()
+    })
+  })
+
+  const pullGridColors = useTrigger(() => {
+    dispatch({ type: 'bulk-edit-existing-colors' })
+  })
+
+  const overwriteGridColors = useTrigger(() => {
+    dispatch({ type: 'bulk-add-colors' })
+  })
 
   const editColor = React.useCallback((value: string, index: number) => {
     dispatch({ type: 'editColor', value, index })
@@ -129,6 +163,21 @@ export default () => {
     })
   }, [])
 
+  const editContrastThreshold = React.useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const parsed = Number.parseFloat(e.target.value)
+
+      const newValue = isNaN(parsed) ? 'invalid' : parsed
+
+      dispatch({
+        type: 'update',
+        field: 'minimumContrast',
+        value: newValue
+      })
+    },
+    []
+  )
+
   const onSwatchClick = React.useCallback(
     (index: number) => (_: unknown) => {
       dispatch({ type: 'removeColor', index })
@@ -136,20 +185,28 @@ export default () => {
     []
   )
 
-  const { bulkEditValue, colors, grayscale } = state
+  const { bulkEditValue, colors, grayscale, minimumContrast } = state
 
   const grayScaleClass = grayscale ? 'grayscale' : ''
 
   return (
     <div className={`app ${grayScaleClass}`.trim()}>
       <h1>Color Contrast Matrix</h1>
-      <button
-        className="add-button"
-        type="button"
-        onClick={() => dispatch({ type: 'addColor' })}
-      >
-        Add color
-      </button>
+      <label className="contrast-threshold">
+        <div>Minimum Contrast Ratio</div>
+        <input
+          onChange={editContrastThreshold}
+          type="number"
+          min="0"
+          step="0.05"
+          max="21"
+        />
+      </label>
+      <div className="add-button">
+        <button type="button" onClick={addColor}>
+          Add color
+        </button>
+      </div>
       <div
         className="colors"
         style={{
@@ -176,7 +233,13 @@ export default () => {
             onClick={onSwatchClick}
           />,
           ...colors.map((second, j) => (
-            <ContrastDisplay first={first} second={second} i={i} j={j} />
+            <ContrastDisplay
+              first={first}
+              second={second}
+              i={i}
+              j={j}
+              minContrast={minimumContrast}
+            />
           ))
         ])}
       </div>
@@ -195,14 +258,11 @@ export default () => {
           <button
             type="button"
             className="overwrite-button"
-            onClick={_ => dispatch({ type: 'bulk-add-colors' })}
+            onClick={overwriteGridColors}
           >
             Overwrite
           </button>
-          <button
-            type="button"
-            onClick={_ => dispatch({ type: 'bulk-edit-existing-colors' })}
-          >
+          <button type="button" onClick={pullGridColors}>
             Pull Grid Colors
           </button>
         </div>
