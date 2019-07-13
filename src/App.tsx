@@ -136,11 +136,20 @@ export default () => {
     []
   )
 
-  const { bulkEditValue, colors } = state
+  const { bulkEditValue, colors, grayscale } = state
+
+  const grayScaleClass = grayscale ? 'grayscale' : ''
 
   return (
-    <div className="app">
+    <div className={`app ${grayScaleClass}`.trim()}>
       <h1>Color Contrast Matrix</h1>
+      <button
+        className="add-button"
+        type="button"
+        onClick={() => dispatch({ type: 'addColor' })}
+      >
+        Add color
+      </button>
       <div
         className="colors"
         style={{
@@ -166,13 +175,6 @@ export default () => {
           ))
         ])}
       </div>
-      <button
-        className="add-button"
-        type="button"
-        onClick={() => dispatch({ type: 'addColor' })}
-      >
-        Add color
-      </button>
       <div className="bulk-edit">
         <label>
           <div>Bulk Edit (One color per line)</div>

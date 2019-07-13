@@ -1,13 +1,56 @@
+import * as _ from 'lodash-es'
+
 interface state {
   colors: string[]
+  grayscale: boolean
   bulkEditValue: string
 }
 
 const seychellesFlagColors = ['blue', 'yellow', 'red', 'white', 'green']
 
+function attemptColorParse(rawParams: string) {
+  const parsed = new URLSearchParams(rawParams)
+
+  const colors = parsed.get('colors')
+  if (colors) {
+    return colors.split('|')
+  }
+}
+
+function attemptGrayscaleParse(rawParams: string) {
+  const parsed = new URLSearchParams(rawParams)
+
+  const colors = parsed.get('🌈')
+  return !colors
+}
+
 export const initialState: state = {
-  colors: seychellesFlagColors,
+  colors: attemptColorParse(window.location.search) || seychellesFlagColors,
+  grayscale: attemptGrayscaleParse(window.location.search),
   bulkEditValue: seychellesFlagColors.join('\n')
+}
+
+function updateQueryParams(colors: string[]) {
+  setTimeout(() => {
+    // https://stackoverflow.com/a/41542008/1924257
+    const searchParams = new URLSearchParams(window.location.search)
+
+    searchParams.set('🌈', '✓')
+
+    searchParams.set(
+      'colors',
+      _.flow(
+        (x: string[]) => x.map(x => x.replace('#', '%23')),
+        x => x.join('|')
+      )(colors)
+    )
+
+    const newRelativePathQuery = `${
+      window.location.pathname
+    }?${searchParams.toString()}`
+
+    window.history.pushState(null, '', newRelativePathQuery)
+  }, 0)
 }
 
 type action =
@@ -22,11 +65,16 @@ type action =
 
 export function reducer(state: state, action: action): state {
   switch (action.type) {
-    case 'addColor':
+    case 'addColor': {
+      const newColors = ['', ...state.colors]
+
+      updateQueryParams(newColors)
+
       return {
         ...state,
-        colors: ['', ...state.colors]
+        colors: newColors
       }
+    }
     case 'bulk-add-colors': {
       const newColors = (() => {
         const candidates = state.bulkEditValue
@@ -40,6 +88,8 @@ export function reducer(state: state, action: action): state {
 
         return candidates
       })()
+
+      updateQueryParams(newColors)
 
       return {
         ...state,
@@ -56,20 +106,25 @@ export function reducer(state: state, action: action): state {
       const newColors = [...state.colors]
 
       newColors[action.index] = action.value
+      updateQueryParams(newColors)
 
       return {
         ...state,
         colors: newColors
       }
-    case 'removeColor':
-      if (state.colors.length <= 1) {
-        return { ...state, colors: [''] }
+    case 'removeColor': {
+      let newColors = ['']
+      if (state.colors.length > 1) {
+        newColors = state.colors.filter((_, index) => index !== action.index)
       }
+
+      updateQueryParams(newColors)
 
       return {
         ...state,
-        colors: state.colors.filter((_, index) => index !== action.index)
+        colors: newColors
       }
+    }
 
     case 'update':
       return { ...state, [action.field]: action.value }
