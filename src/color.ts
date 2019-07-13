@@ -1,31 +1,57 @@
 import * as _ from 'lodash-es'
 export type triple = [number, number, number]
 
-// https://stackoverflow.com/a/24390910/1924257
-export function colorToRGBA(color: string) {
-  var cvs, ctx
-  cvs = document.createElement('canvas')!
-  cvs.height = 1
-  cvs.width = 1
-  ctx = cvs.getContext('2d')!
-  ctx.fillStyle = color
-  ctx.fillRect(0, 0, 1, 1)
-  return ctx.getImageData(0, 0, 1, 1).data
+const blackHexes = new Set(['black', '#000', '#000000'])
+
+export function validateColor(c: string) {
+  const readAttempt = colorToHex(c)
+
+  if (!blackHexes.has(c) && blackHexes.has(readAttempt)) {
+    return null
+  }
+
+  return readAttempt
 }
 
-function byteToHex(num: number) {
-  // Turns a number (0-255) into a 2-character hex number (00-ff)
-  return ('0' + num.toString(16)).slice(-2)
+export function borderColor(c: string) {
+  return _.flow(
+    colorToHex,
+    hexToRgb,
+    triple => luminanace(...(triple as triple)),
+    l => l >= 0.5
+  )(c)
+    ? 'black'
+    : undefined
 }
 
-export function colorToHex(color: string) {
-  let rgba = colorToRGBA(color),
-    hex = [0, 1, 2]
-      .map(function(idx) {
-        return byteToHex(rgba[idx])
-      })
-      .join('')
-  return '#' + hex
+export function setBackgroundColor(value: string) {
+  const validated = validateColor(value)
+
+  if (validated == null) {
+    return {
+      background: `repeating-linear-gradient(
+  45deg,
+  white,
+  white 6px,
+  lightgray 6px,
+  lightgray 12px
+)`,
+      border: '1px solid lightgray',
+      cursor: 'default'
+    }
+  }
+
+  return {
+    backgroundColor: value,
+    ...{ boxShadow: `inset 0 0 0 1px ${borderColor(value)}` }
+  }
+}
+
+export function colorToHex(str: string) {
+  const ctx = document.createElement('canvas').getContext('2d')!
+
+  ctx.fillStyle = str
+  return ctx.fillStyle
 }
 
 // https://stackoverflow.com/a/9733420/1924257
