@@ -13,7 +13,7 @@ function attemptColorParse(rawParams: string) {
 
   const colors = parsed.get('colors')
   if (colors) {
-    return colors.split('|')
+    return colors.replace('%23', '#').split('|')
   }
 }
 
@@ -37,13 +37,7 @@ function updateQueryParams(colors: string[]) {
 
     searchParams.set('🌈', '✓')
 
-    searchParams.set(
-      'colors',
-      _.flow(
-        (x: string[]) => x.map(x => x.replace('#', '%23')),
-        x => x.join('|')
-      )(colors)
-    )
+    searchParams.set('colors', colors.join('|'))
 
     const newRelativePathQuery = `${
       window.location.pathname

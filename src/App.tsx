@@ -169,7 +169,12 @@ export default () => {
           ))
         ]}
         {colors.flatMap((first, i) => [
-          <Swatch color={first} index={i} onClick={onSwatchClick} />,
+          <Swatch
+            key={'row ' + first + i}
+            color={first}
+            index={i}
+            onClick={onSwatchClick}
+          />,
           ...colors.map((second, j) => (
             <ContrastDisplay first={first} second={second} i={i} j={j} />
           ))
