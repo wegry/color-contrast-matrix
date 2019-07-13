@@ -11,12 +11,39 @@ button {
   height: 28px;
 }
 
+.app {
+  padding: 8px 32px;
+  display: grid;
+  grid-gap: 16px;
+  grid-template:
+    'title title title' auto
+    'colors add-color-button .' auto
+    'colors . .' min-content / 1fr 120px 1fr;
+}
+
+h1 {
+  grid-area: title;
+}
+
 .colors {
   display: grid;
-  grid-auto-flow: column;
-  column-gap: 8px;
-  padding: 8px;
-  grid-auto-columns: minmax(max-content, 1fr);
+  grid-gap: 8px;
+  grid-area: colors;
+}
+
+.add-button {
+  border-radius: 4px;
+  grid-area: add-color-button;
+}
+
+.contrast-display {
+  display: grid;
+  grid-auto-rows: min-content;
+  justify-items: center;
+}
+
+.colors > * {
+  justify-self: center;
 }
 
 .swatch {
@@ -30,7 +57,8 @@ button {
 .color-entry {
   display: grid;
   row-gap: 10px;
-  width: 70px;
+  width: 80px;
+  justify-items: center;
 }
 
 .color-entry input {
