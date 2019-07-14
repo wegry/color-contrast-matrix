@@ -1,5 +1,5 @@
 // https://stackoverflow.com/a/9733420/1924257
-import React, { FormEvent } from 'react'
+import React from 'react'
 import './App.css'
 import { reducer, initialState } from './reducer'
 import {
@@ -127,7 +127,7 @@ const ContrastDisplay: React.FC<{
 function useTrigger(f: () => void) {
   return React.useCallback(() => {
     f()
-  }, [])
+  }, [f])
 }
 
 export default () => {

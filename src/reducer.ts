@@ -1,5 +1,3 @@
-import * as _ from 'lodash-es'
-
 interface state {
   colors: string[]
   grayscale: boolean
