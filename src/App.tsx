@@ -43,6 +43,7 @@ const ColorEntry: React.FC<{
     <div className="color-entry">
       <Swatch onClick={removeHandler} color={color} index={index} />
       <input
+        spellCheck={false}
         placeholder="#000000"
         value={color}
         onChange={event => onChange(event.target.value, index)}
@@ -247,6 +248,7 @@ export default () => {
         <label>
           <div>Bulk Edit (One color per line)</div>
           <textarea
+            spellCheck={false}
             placeholder={`red\nwhite\nblue`}
             value={bulkEditValue}
             onChange={e => {
