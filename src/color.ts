@@ -14,12 +14,19 @@ export function validateColor(c: string) {
 }
 
 export function borderColor(c: string) {
-  return _.flow(
+  const rgb = _.flow(
     colorToHex,
-    hexToRgb,
+    hexToRgb
+  )(c)
+
+  if (rgb == null) {
+    return undefined
+  }
+
+  return _.flow(
     triple => luminanace(...(triple as triple)),
     l => l >= 0.5
-  )(c)
+  )(rgb)
     ? 'black'
     : undefined
 }
