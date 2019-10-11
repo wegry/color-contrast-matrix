@@ -1,6 +1,6 @@
 // https://stackoverflow.com/a/9733420/1924257
 import React from 'react'
-import './App.css'
+import './App.scss'
 import { reducer, initialState } from './reducer'
 import {
   hexToRgb,
