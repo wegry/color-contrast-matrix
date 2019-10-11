@@ -31,6 +31,21 @@ export function borderColor(c: string) {
     : undefined
 }
 
+export function normalizeHex(value: string) {
+  if (/^(#|rgb|hsl)/.test(value)) {
+    return value
+  }
+  switch (value.length) {
+    case 3:
+    case 6:
+      if (/^[a-fA-F\d]+$/) {
+        return `#${value}`
+      }
+  }
+
+  return value
+}
+
 export function setBackgroundColor(value: string) {
   const validated = validateColor(value)
 
@@ -82,12 +97,14 @@ export function contrast(rgb1: triple, rgb2: triple) {
 export function hexToRgb(hex: string) {
   const regex: [number, RegExp] | 'invalid' = (() => {
     switch (hex.length) {
+      case 6:
       case 7:
         return [1, /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i] as [
           number,
           RegExp
         ]
 
+      case 3:
       case 4:
         return [2, /^#?([a-f\d]{1})([a-f\d]{1})([a-f\d]{1})$/i] as [
           number,

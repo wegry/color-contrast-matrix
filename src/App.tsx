@@ -8,7 +8,8 @@ import {
   contrast,
   validateColor,
   setBackgroundColor,
-  borderColor
+  borderColor,
+  normalizeHex
 } from './color'
 
 const formatDecimal = Intl.NumberFormat([], {
@@ -47,6 +48,13 @@ const ColorEntry: React.FC<{
         placeholder="#000000"
         value={color}
         onChange={event => onChange(event.target.value, index)}
+        onPaste={event => {
+          onChange(
+            normalizeHex(event.clipboardData.getData('text').trim()),
+            index
+          )
+          event.preventDefault()
+        }}
       />
     </div>
   )
@@ -235,6 +243,7 @@ export default () => {
           />,
           ...colors.map((second, j) => (
             <ContrastDisplay
+              key={`${i}--${j}`}
               first={first}
               second={second}
               i={i}
