@@ -11,6 +11,7 @@ import {
   borderColor,
   normalizeHex
 } from './color'
+import { Button, TextField } from '@material-ui/core'
 
 const formatDecimal = Intl.NumberFormat([], {
   maximumFractionDigits: 3,
@@ -50,7 +51,7 @@ const ColorEntry: React.FC<{
         color={color}
         index={index}
       />
-      <input
+      <TextField
         spellCheck={false}
         placeholder="#000000"
         value={color}
@@ -208,20 +209,23 @@ export default () => {
   return (
     <div className={`app ${grayScaleClass}`.trim()}>
       <h1>Color Contrast Matrix</h1>
-      <label className="contrast-threshold">
-        <div>Minimum Contrast Ratio</div>
-        <input
-          onChange={editContrastThreshold}
-          type="number"
-          min="0"
-          step="0.05"
-          max="21"
-        />
-      </label>
+      <TextField
+        className="contrast-threshold"
+        label="Minimum Contrast Ratio"
+        onChange={editContrastThreshold}
+        type="number"
+        defaultValue={4.5}
+        helperText="4.5 is AA"
+      />
       <div className="add-button">
-        <button type="button" onClick={addColor}>
+        <Button
+          color="primary"
+          size="large"
+          variant="outlined"
+          onClick={addColor}
+        >
           Add color
-        </button>
+        </Button>
       </div>
       <div
         className="colors"
@@ -263,28 +267,35 @@ export default () => {
         ])}
       </div>
       <div className="bulk-edit">
-        <label>
-          <div>Bulk Edit (One color per line)</div>
-          <textarea
-            spellCheck={false}
-            placeholder={`red\nwhite\nblue`}
-            value={bulkEditValue}
-            onChange={e => {
-              editBulkColors(e.target.value)
-            }}
-          />
-        </label>
+        <TextField
+          label="Bulk Edit"
+          helperText="One color per line"
+          multiline
+          spellCheck={false}
+          placeholder={`red\nwhite\nblue`}
+          value={bulkEditValue}
+          onChange={e => {
+            editBulkColors(e.target.value)
+          }}
+        />
         <div className="bulk-edit-buttons">
-          <button
+          <Button
             type="button"
+            color="primary"
+            variant="outlined"
             className="overwrite-button"
             onClick={overwriteGridColors}
           >
             Overwrite
-          </button>
-          <button type="button" onClick={pullGridColors}>
+          </Button>
+          <Button
+            type="button"
+            variant="outlined"
+            color="secondary"
+            onClick={pullGridColors}
+          >
             Pull Grid Colors
-          </button>
+          </Button>
         </div>
       </div>
     </div>

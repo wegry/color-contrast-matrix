@@ -20,14 +20,14 @@ button {
   padding: 8px 32px;
   display: grid;
   column-gap: 32px;
-  row-gap: 16px;
+  row-gap: 32px;
   grid-template:
     '.                title' auto
     'min-contrast colors' min-content
     'add-color-button colors' min-content
     'bulk-edit        colors' auto
     '.                colors' auto
-    / min-content 1fr;
+    / max-content 1fr;
 }
 
 .app.grayscale {
@@ -54,11 +54,6 @@ label div:first-of-type {
   grid-area: min-contrast;
 }
 
-.contrast-threshold input {
-  width: 70px;
-  text-align: right;
-}
-
 .colors {
   display: grid;
   grid-gap: 8px;
@@ -80,11 +75,6 @@ label div:first-of-type {
   grid-gap: 8px;
   flex-direction: column;
   grid-auto-rows: auto;
-}
-
-.bulk-edit textarea {
-  height: 300px;
-  width: 100%;
 }
 
 .bulk-edit-buttons {
@@ -141,10 +131,6 @@ label div:first-of-type {
   row-gap: 10px;
   width: 80px;
   justify-items: center;
-}
-
-.color-entry input {
-  width: 100%;
 }
 
 .light-column {
