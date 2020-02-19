@@ -1,9 +1,12 @@
 interface state {
   colors: string[]
+  titles: Map<string, string>
   grayscale: boolean
   bulkEditValue: string
   minimumContrast: number | 'not set' | 'invalid'
 }
+
+const kvSeparator = ':::'
 
 const seychellesFlagColors = ['blue', 'yellow', 'red', 'white', 'green']
 
@@ -16,6 +19,21 @@ function attemptColorParse(rawParams: string) {
   }
 }
 
+function attemptTitlesParse(rawParams: string) {
+  const parsed = new URLSearchParams(rawParams)
+
+  const titles = parsed.get('titles')
+  if (titles) {
+    return new Map(
+      titles
+        .split('|')
+        .map(
+          titleByColor => titleByColor.split(kvSeparator) as [string, string]
+        )
+    )
+  }
+}
+
 function attemptGrayscaleParse(rawParams: string) {
   const parsed = new URLSearchParams(rawParams)
 
@@ -24,20 +42,38 @@ function attemptGrayscaleParse(rawParams: string) {
 }
 
 export const initialState: state = {
-  colors: attemptColorParse(window.location.search) || seychellesFlagColors,
+  colors: attemptColorParse(window.location.search) ?? seychellesFlagColors,
   minimumContrast: 'not set',
   grayscale: attemptGrayscaleParse(window.location.search),
+  titles: attemptTitlesParse(window.location.search) ?? new Map(),
   bulkEditValue: seychellesFlagColors.join('\n')
 }
 
-function updateQueryParams(colors: string[]) {
+function updateQueryParams(colors: string[] | Map<string, string>) {
   setTimeout(() => {
     // https://stackoverflow.com/a/41542008/1924257
     const searchParams = new URLSearchParams(window.location.search)
 
     searchParams.set('🌈', '✓')
 
-    searchParams.set('colors', colors.join('|'))
+    if (colors instanceof Map) {
+      const colorsStringified = Array.from(colors.keys()).join('|')
+      const titlesStringified = Array.from(colors.entries())
+        .flatMap(p => {
+          const [, v] = p
+
+          if (v) {
+            return [p.join(kvSeparator)]
+          }
+
+          return []
+        })
+        .join('|')
+      searchParams.set('colors', colorsStringified)
+      searchParams.set('titles', titlesStringified)
+    } else {
+      searchParams.set('colors', colors.join('|'))
+    }
 
     const newRelativePathQuery = `${
       window.location.pathname
@@ -71,24 +107,33 @@ export function reducer(state: state, action: action): state {
     }
     case 'bulk-add-colors': {
       const newColors = (() => {
-        const candidates = state.bulkEditValue
+        const candidates: [string, string][] = state.bulkEditValue
           .split('\n')
-          .map(c => c.trim())
-          .filter(c => !!c)
+          .flatMap(c => {
+            const [, color, comment] = /^([^#]*)(?:#(.*))?$/gm.exec(c)!
+
+            const trimmedColor = color.trim()
+
+            const trimmedComment = comment?.trim() ?? ''
+
+            return trimmedColor ? [[trimmedColor, trimmedComment]] : []
+          })
 
         if (candidates.length === 0) {
-          return ['']
+          return null
         }
 
-        return candidates
+        return new Map(candidates)
       })()
 
-      updateQueryParams(newColors)
+      updateQueryParams(newColors ?? [''])
+      const colorArray = Array.from(newColors?.keys() ?? [''])
 
       return {
         ...state,
         bulkEditValue: state.bulkEditValue.trim(),
-        colors: newColors
+        colors: colorArray,
+        titles: new Map(newColors ?? new Map())
       }
     }
     case 'bulk-edit-existing-colors':

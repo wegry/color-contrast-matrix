@@ -18,17 +18,18 @@ const formatDecimal = Intl.NumberFormat([], {
 })
 
 const Swatch: React.FC<{
+  titles?: Map<string, string>
   color: string
   index: number
   onClick: (index: number) => (_: unknown) => void
-}> = React.memo(({ color, index, onClick }) => {
+}> = React.memo(({ color, index, onClick, titles }) => {
   const validatedColor = setBackgroundColor(color)
 
   return (
     <div
       onClick={onClick(index)}
       className="swatch removable"
-      title={color}
+      title={titles?.get(color) ?? color}
       style={validatedColor}
     />
   )
@@ -39,10 +40,16 @@ const ColorEntry: React.FC<{
   index: number
   onChange: (value: string, index: number) => void
   removeHandler: (index: number) => (_: unknown) => void
-}> = React.memo(({ color, index, onChange, removeHandler }) => {
+  titles: Map<string, string>
+}> = React.memo(({ color, index, onChange, removeHandler, titles }) => {
   return (
     <div className="color-entry">
-      <Swatch onClick={removeHandler} color={color} index={index} />
+      <Swatch
+        titles={titles}
+        onClick={removeHandler}
+        color={color}
+        index={index}
+      />
       <input
         spellCheck={false}
         placeholder="#000000"
@@ -194,7 +201,7 @@ export default () => {
     []
   )
 
-  const { bulkEditValue, colors, grayscale, minimumContrast } = state
+  const { bulkEditValue, colors, grayscale, minimumContrast, titles } = state
 
   const grayScaleClass = grayscale ? 'grayscale' : ''
 
@@ -228,6 +235,7 @@ export default () => {
             <ColorEntry
               key={index}
               removeHandler={onSwatchClick}
+              titles={titles}
               color={color}
               index={index}
               onChange={editColor}
@@ -238,6 +246,7 @@ export default () => {
           <Swatch
             key={'row ' + first + i}
             color={first}
+            titles={titles}
             index={i}
             onClick={onSwatchClick}
           />,

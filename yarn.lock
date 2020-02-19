@@ -12571,7 +12571,7 @@ resolve@1.1.7:
     react-dom: ^16.8.6
     react-scripts: ^3.4.0
     sass: ^1.23.0
-    typescript: 3.5.3
+    typescript: ^3.7.5
   languageName: unknown
   linkType: soft
 
@@ -14046,13 +14046,13 @@ resolve@1.1.7:
   languageName: node
   linkType: hard
 
-typescript@3.5.3:
-  version: 3.5.3
-  resolution: "typescript@npm:3.5.3"
+"typescript@npm:^3.7.5":
+  version: 3.7.5
+  resolution: "typescript@npm:3.7.5"
   bin:
-    tsc: ./bin/tsc
-    tsserver: ./bin/tsserver
-  checksum: 2/4971be7355f07f517a03fc0dc5f78851d2824e48c79130ee3b12d6aada332d5c66097f1da41d97b91f57e84c952b56e00178bf9c2297cfa3471500e6008cfcd2
+    tsc: bin/tsc
+    tsserver: bin/tsserver
+  checksum: 2/48a96fb7dc48746e6b76cf0946545181b0d5013368e510768402f1374e6c6a9f29b00e8ca4f40bc7523a655473f7bc7c55d1c8458970e96b7187bcee1b47e96b
   languageName: node
   linkType: hard
 

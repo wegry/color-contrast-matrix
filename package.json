@@ -13,7 +13,7 @@
     "react-dom": "^16.8.6",
     "react-scripts": "^3.4.0",
     "sass": "^1.23.0",
-    "typescript": "3.5.3"
+    "typescript": "^3.7.5"
   },
   "scripts": {
     "start": "react-scripts start",
