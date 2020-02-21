@@ -14,18 +14,15 @@ export function validateColor(c: string) {
 }
 
 export function borderColor(c: string) {
-  const rgb = _.flow(
-    colorToHex,
-    hexToRgb
-  )(c)
+  const rgb = _.flow(colorToHex, hexToRgb)(c)
 
   if (rgb == null) {
     return undefined
   }
 
   return _.flow(
-    triple => luminanace(...(triple as triple)),
-    l => l >= 0.5
+    (triple: triple) => luminanace(...(triple as triple)),
+    (l: number) => l >= 0.5
   )(rgb)
     ? 'black'
     : undefined
@@ -94,7 +91,7 @@ export function contrast(rgb1: triple, rgb2: triple) {
 }
 
 // https://stackoverflow.com/a/5624139/1924257
-export function hexToRgb(hex: string) {
+export function hexToRgb(hex: string): triple | null {
   const regex: [number, RegExp] | 'invalid' = (() => {
     switch (hex.length) {
       case 6:

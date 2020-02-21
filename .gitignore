@@ -2,10 +2,10 @@
 
 # dependencies
 /node_modules
-/.pnp
-.pnp.js
-/.yarn/cache/
-/.yarn/unplugged/
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.pnp.*
 
 # testing
 /coverage
