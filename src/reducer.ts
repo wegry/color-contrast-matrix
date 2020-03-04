@@ -46,7 +46,7 @@ export const initialState: state = {
   minimumContrast: 'not set',
   grayscale: attemptGrayscaleParse(window.location.search),
   titles: attemptTitlesParse(window.location.search) ?? new Map(),
-  bulkEditValue: seychellesFlagColors.join('\n')
+  bulkEditValue: ['#fff', '#ff0 #foo', 'rgb(17, 16, 200) # fishy'].join('\n') //[seychellesFlagColors].join('\n')
 }
 
 function updateQueryParams(colors: string[] | Map<string, string>) {
@@ -110,13 +110,25 @@ export function reducer(state: state, action: action): state {
         const candidates: [string, string][] = state.bulkEditValue
           .split('\n')
           .flatMap(c => {
-            const [, color, comment] = /^([^#]*)(?:#(.*))?$/gm.exec(c)!
+            const result = /^(.[^#]+)(?: +#(.*))?$/gm.exec(c)!
+            console.log({ c, result })
 
-            const trimmedColor = color.trim()
+            if (Array.isArray(result)) {
+              const [, color, comment] = result
 
-            const trimmedComment = comment?.trim() ?? ''
+              const trimmedColor = color.trim()
+              const trimmedComment = comment?.trim() ?? ''
 
-            return trimmedColor ? [[trimmedColor, trimmedComment]] : []
+              return trimmedColor ? [[trimmedColor, trimmedComment]] : []
+            }
+
+            const trimmedColor = c.trim()
+
+            if (trimmedColor) {
+              return [[trimmedColor, '']]
+            }
+
+            return []
           })
 
         if (candidates.length === 0) {
