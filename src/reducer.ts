@@ -4,6 +4,7 @@ interface state {
   grayscale: boolean
   bulkEditValue: string
   minimumContrast: number | 'not set' | 'invalid'
+  comparison: 'swatch' | 'type'
 }
 
 const kvSeparator = ':::'
@@ -46,7 +47,8 @@ export const initialState: state = {
   minimumContrast: 'not set',
   grayscale: attemptGrayscaleParse(window.location.search),
   titles: attemptTitlesParse(window.location.search) ?? new Map(),
-  bulkEditValue: ['#fff', '#ff0 #foo', 'rgb(17, 16, 200) # fishy'].join('\n') //[seychellesFlagColors].join('\n')
+  bulkEditValue: seychellesFlagColors.join('\n'),
+  comparison: 'swatch'
 }
 
 function updateQueryParams(colors: string[] | Map<string, string>) {

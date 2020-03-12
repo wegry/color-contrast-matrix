@@ -82,7 +82,13 @@ function luminanace(r: number, g: number, b: number) {
   return a[0] * 0.2126 + a[1] * 0.7152 + a[2] * 0.0722
 }
 
-export function contrast(rgb1: triple, rgb2: triple) {
+export function contrast(...args: triple[]) {
+  if (args.length != 2) {
+    return 0
+  }
+
+  const [rgb1, rgb2] = args
+
   const [denominator, numerator] = _.sortBy(
     [rgb1, rgb2].map(c => luminanace(...c) + 0.05)
   )

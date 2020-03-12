@@ -59,6 +59,10 @@ label div:first-of-type {
   grid-gap: 8px;
   grid-area: colors;
   grid-auto-rows: min-content;
+
+  &.type {
+    grid-auto-rows: max-content;
+  }
 }
 
 .add-button {
@@ -102,6 +106,20 @@ label div:first-of-type {
   width: 30px;
   border: 1px solid white;
   border-radius: 4px;
+}
+
+.type-swatch {
+  font-family: monospace;
+  height: 100px;
+  width: 100px;
+  padding: 8px;
+  position: relative;
+}
+
+.ratio {
+  text-align: right;
+  line-height: 1.5;
+  font-weight: 600;
 }
 
 .swatch.removable {

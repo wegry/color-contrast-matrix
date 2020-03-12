@@ -2,144 +2,16 @@
 import React from 'react'
 import './App.scss'
 import { reducer, initialState } from './reducer'
+import Colors from './Colors'
 import {
-  hexToRgb,
-  triple,
-  contrast,
-  validateColor,
-  setBackgroundColor,
-  borderColor,
-  normalizeHex
-} from './color'
-import { Button, TextField } from '@material-ui/core'
-
-const formatDecimal = Intl.NumberFormat([], {
-  maximumFractionDigits: 3,
-  maximumSignificantDigits: 3
-})
-
-const Swatch: React.FC<{
-  titles?: Map<string, string>
-  color: string
-  index: number
-  onClick: (index: number) => (_: unknown) => void
-}> = React.memo(({ color, index, onClick, titles }) => {
-  const validatedColor = setBackgroundColor(color)
-
-  return (
-    <div
-      onClick={onClick(index)}
-      className="swatch removable"
-      title={titles?.get(color) ?? color}
-      style={validatedColor}
-    />
-  )
-})
-
-const ColorEntry: React.FC<{
-  color: string
-  index: number
-  onChange: (value: string, index: number) => void
-  removeHandler: (index: number) => (_: unknown) => void
-  titles: Map<string, string>
-}> = React.memo(({ color, index, onChange, removeHandler, titles }) => {
-  return (
-    <div className="color-entry">
-      <Swatch
-        titles={titles}
-        onClick={removeHandler}
-        color={color}
-        index={index}
-      />
-      <TextField
-        spellCheck={false}
-        placeholder="#000000"
-        value={color}
-        onChange={event => onChange(event.target.value, index)}
-        onPaste={event => {
-          onChange(
-            normalizeHex(event.clipboardData.getData('text').trim()),
-            index
-          )
-          event.preventDefault()
-        }}
-      />
-    </div>
-  )
-})
-
-const ContrastDisplay: React.FC<{
-  first: string
-  second: string
-  i: number
-  j: number
-  minContrast: number | 'invalid' | 'not set'
-}> = React.memo(({ first, second, i, j, minContrast }) => {
-  const dontDisplay = <div key={first + second + i + j} />
-  if (
-    first === second ||
-    [first, second].some(c => c.trim() === '' || c.length < 3)
-  ) {
-    return dontDisplay
-  }
-
-  const rgbs = [first.trim(), second.trim()]
-    .flatMap(c => {
-      const result = validateColor(c)
-
-      if (result != null) {
-        return [result]
-      }
-      return []
-    })
-    .map(c => {
-      return hexToRgb(c)
-    })
-
-  if (rgbs.some(x => x == null) || rgbs.length !== 2) {
-    return dontDisplay
-  }
-
-  const rawContrast = contrast(...(rgbs as [triple, triple])),
-    contrastRatio = formatDecimal.format(rawContrast)
-
-  const boxShadow = [
-    [borderColor(second), 'light-column'],
-    [borderColor(first), 'light-row']
-  ].flatMap(([borderColor, borderClassName]) =>
-    borderColor === undefined ? [] : [borderClassName]
-  )
-  const borderClasses = (() => {
-    if (boxShadow.length === 2) {
-      return 'light-both'
-    } else {
-      return boxShadow.join('')
-    }
-  })()
-
-  const contrastThresholdClass = (() => {
-    switch (minContrast) {
-      case 'invalid':
-      case 'not set':
-        return ''
-      default:
-        return rawContrast > minContrast ? '' : 'below-contrast-threshold'
-    }
-  })()
-
-  return (
-    <div key={first + second + j} className="contrast-display">
-      <div
-        className={`swatch ${contrastThresholdClass} ${borderClasses}`.trim()}
-        title={`(${second}, ${first})`}
-        style={{
-          background: `linear-gradient(45deg, ${first} 50%, ${second} 50%)`
-        }}
-      />
-      <div> {contrastRatio}:1</div>
-    </div>
-  )
-})
+  Button,
+  FormControl,
+  FormControlLabel,
+  FormLabel,
+  Radio,
+  RadioGroup,
+  TextField
+} from '@material-ui/core'
 
 function useTrigger(f: () => void) {
   return React.useCallback(() => {
@@ -195,14 +67,25 @@ export default () => {
     []
   )
 
+  const setComparison = React.useCallback(e => {
+    dispatch({ type: 'update', field: 'comparison', value: e.target.value })
+  }, [])
+
   const onSwatchClick = React.useCallback(
-    (index: number) => (_: unknown) => {
+    (index: number) => () => {
       dispatch({ type: 'removeColor', index })
     },
     []
   )
 
-  const { bulkEditValue, colors, grayscale, minimumContrast, titles } = state
+  const {
+    bulkEditValue,
+    colors,
+    comparison,
+    grayscale,
+    minimumContrast,
+    titles
+  } = state
 
   const grayScaleClass = grayscale ? 'grayscale' : ''
 
@@ -227,45 +110,14 @@ export default () => {
           Add color
         </Button>
       </div>
-      <div
-        className="colors"
-        style={{
-          gridTemplateColumns: `30px repeat(${colors.length}, max-content)`
-        }}
-      >
-        {[
-          <div key="placeholder" />,
-          ...colors.map((color, index) => (
-            <ColorEntry
-              key={index}
-              removeHandler={onSwatchClick}
-              titles={titles}
-              color={color}
-              index={index}
-              onChange={editColor}
-            />
-          ))
-        ]}
-        {colors.flatMap((first, i) => [
-          <Swatch
-            key={'row ' + first + i}
-            color={first}
-            titles={titles}
-            index={i}
-            onClick={onSwatchClick}
-          />,
-          ...colors.map((second, j) => (
-            <ContrastDisplay
-              key={`${i}--${j}`}
-              first={first}
-              second={second}
-              i={i}
-              j={j}
-              minContrast={minimumContrast}
-            />
-          ))
-        ])}
-      </div>
+      <Colors
+        colors={colors}
+        onSwatchClick={onSwatchClick}
+        titles={titles}
+        editColor={editColor}
+        minimumContrast={minimumContrast}
+        comparison={comparison}
+      />
       <div className="bulk-edit">
         <TextField
           label="Bulk Edit"
@@ -297,6 +149,17 @@ export default () => {
             Pull Grid Colors
           </Button>
         </div>
+        <FormControl component="fieldset" className="comparison-select">
+          <FormLabel component="legend">Visualize with</FormLabel>
+          <RadioGroup value={comparison} onChange={setComparison}>
+            <FormControlLabel value="type" control={<Radio />} label="Type" />
+            <FormControlLabel
+              value="swatch"
+              control={<Radio />}
+              label="Swatch"
+            />
+          </RadioGroup>
+        </FormControl>
       </div>
     </div>
   )
