@@ -48,7 +48,7 @@ export const initialState: state = {
   grayscale: attemptGrayscaleParse(window.location.search),
   titles: attemptTitlesParse(window.location.search) ?? new Map(),
   bulkEditValue: seychellesFlagColors.join('\n'),
-  comparison: 'swatch'
+  comparison: 'type'
 }
 
 function updateQueryParams(colors: string[] | Map<string, string>) {

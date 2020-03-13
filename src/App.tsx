@@ -8,6 +8,7 @@ import {
   FormControl,
   FormControlLabel,
   FormLabel,
+  Link,
   Radio,
   RadioGroup,
   TextField
@@ -92,6 +93,12 @@ export default () => {
   return (
     <div className={`app ${grayScaleClass}`.trim()}>
       <h1>Color Contrast Matrix</h1>
+      <Link
+        className="code"
+        href="https://github.com/wegry/color-contrast-matrix"
+      >
+        Code
+      </Link>
       <TextField
         className="contrast-threshold"
         label="Minimum Contrast Ratio"
@@ -100,7 +107,10 @@ export default () => {
         defaultValue={4.5}
         helperText="4.5 is AA"
       />
-      <div className="add-button">
+      <div
+        className="add-button"
+        style={{ display: comparison === 'type' ? 'none' : undefined }}
+      >
         <Button
           color="primary"
           size="large"
@@ -149,18 +159,14 @@ export default () => {
             Pull Grid Colors
           </Button>
         </div>
-        <FormControl component="fieldset" className="comparison-select">
-          <FormLabel component="legend">Visualize with</FormLabel>
-          <RadioGroup value={comparison} onChange={setComparison}>
-            <FormControlLabel value="type" control={<Radio />} label="Type" />
-            <FormControlLabel
-              value="swatch"
-              control={<Radio />}
-              label="Swatch"
-            />
-          </RadioGroup>
-        </FormControl>
       </div>
+      <FormControl component="fieldset" className="comparison-select">
+        <FormLabel component="legend">Visualize with</FormLabel>
+        <RadioGroup value={comparison} onChange={setComparison}>
+          <FormControlLabel value="type" control={<Radio />} label="Type" />
+          <FormControlLabel value="swatch" control={<Radio />} label="Swatch" />
+        </RadioGroup>
+      </FormControl>
     </div>
   )
 }

@@ -21,7 +21,7 @@ export function borderColor(c: string) {
   }
 
   return _.flow(
-    (triple: triple) => luminanace(...(triple as triple)),
+    (triple: triple) => luminance(...(triple as triple)),
     (l: number) => l >= 0.5
   )(rgb)
     ? 'black'
@@ -74,7 +74,7 @@ export function colorToHex(str: string) {
 }
 
 // https://stackoverflow.com/a/9733420/1924257
-function luminanace(r: number, g: number, b: number) {
+export function luminance(r: number, g: number, b: number) {
   const a = [r, g, b].map(v => {
     v /= 255
     return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4
@@ -83,14 +83,14 @@ function luminanace(r: number, g: number, b: number) {
 }
 
 export function contrast(...args: triple[]) {
-  if (args.length != 2) {
+  if (args.length !== 2) {
     return 0
   }
 
   const [rgb1, rgb2] = args
 
   const [denominator, numerator] = _.sortBy(
-    [rgb1, rgb2].map(c => luminanace(...c) + 0.05)
+    [rgb1, rgb2].map(c => luminance(...c) + 0.05)
   )
 
   return numerator / denominator

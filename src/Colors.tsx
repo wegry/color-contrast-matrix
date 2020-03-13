@@ -4,16 +4,25 @@ import {
   triple,
   contrast,
   validateColor,
+  luminance,
   setBackgroundColor,
   borderColor,
   normalizeHex
 } from './color'
 
-import { TextField } from '@material-ui/core'
+import * as _ from 'lodash-es'
+
+import { TextField, Tooltip } from '@material-ui/core'
 
 const formatDecimal = Intl.NumberFormat([], {
   maximumFractionDigits: 3,
   maximumSignificantDigits: 3
+})
+
+const formatPercentage = Intl.NumberFormat([], {
+  maximumFractionDigits: 3,
+  maximumSignificantDigits: 3,
+  style: 'percent'
 })
 
 type indexClosure = (index: number) => () => void
@@ -92,7 +101,6 @@ const shouldDisplay = (rgbs: triple[]) => {
   }
 
   if (rgbs.some(x => x == null) || rgbs.length !== 2) {
-    console.log('nulls', rgbs)
     return false
   }
 
@@ -110,8 +118,9 @@ const ContrastDisplay: React.FC<{
   j: number
   minContrast: number | 'invalid' | 'not set'
   comparison?: 'type' | 'swatch'
+  titles?: Map<string, string>
 }> = React.memo(
-  ({ first, second, comparison = 'swatch', i, j, minContrast }) => {
+  ({ first, second, comparison = 'swatch', j, minContrast, titles }) => {
     const rgbs = rgbExtractor(first, second)
 
     if (!shouldDisplay(rgbs)) {
@@ -121,11 +130,14 @@ const ContrastDisplay: React.FC<{
     const rawContrast = contrast(...rgbs),
       contrastRatio = formatDecimal.format(rawContrast),
       blackContrast = formatDecimal.format(
-        contrast(...rgbExtractor(first, '#000'))
+        contrast(...rgbExtractor(second, 'black'))
       ),
       whiteContrast = formatDecimal.format(
-        contrast(...rgbExtractor(first, '#fff'))
-      )
+        contrast(...rgbExtractor(second, 'white'))
+      ),
+      lastRgb = _.last(rgbs)!,
+      luminance_ =
+        lastRgb?.length === 3 ? luminance.apply(null, lastRgb) : 'invalid'
 
     const contrastThresholdClass = (() => {
       switch (minContrast) {
@@ -139,33 +151,54 @@ const ContrastDisplay: React.FC<{
 
     if (comparison === 'type') {
       return (
-        <div
-          className={`type-swatch ${contrastThresholdClass}`.trim()}
-          title={formatPair(first, second)}
-          key={first + second + j}
-          style={{
-            backgroundColor: second,
-            boxShadow: `inset 8px -8px ${first}`
-          }}
-        >
-          <div className="ratio" style={{ color: first }}>
-            {contrastRatio}:1
-          </div>
+        <Tooltip title={titles?.get(second) ?? formatPair(first, second)}>
           <div
-            className="ratio"
-            title={formatPair(first, 'black')}
-            style={{ color: 'black' }}
+            className={`type-swatch ${contrastThresholdClass}`.trim()}
+            key={first + second + j}
+            style={{
+              backgroundColor: second,
+              boxShadow: `inset 8px -8px ${first}`
+            }}
           >
-            {blackContrast}:1
+            <div
+              title={'contrast ratio with ' + first}
+              className="ratio"
+              style={{ color: first }}
+            >
+              {contrastRatio}:1
+            </div>
+            <div
+              className="ratio"
+              title={'contrast ratio with black'}
+              style={{ color: 'black' }}
+            >
+              {blackContrast}:1
+            </div>
+            <div
+              className="ratio"
+              title={`${second} luminance`}
+              style={{
+                color:
+                  typeof luminance_ === 'number'
+                    ? luminance_ > 0.5
+                      ? 'black'
+                      : 'white'
+                    : 'black'
+              }}
+            >
+              {typeof luminance_ === 'number'
+                ? formatPercentage.format(luminance_)
+                : 'invalid'}
+            </div>
+            <div
+              className="ratio"
+              title="contrast ratio with white"
+              style={{ color: 'white' }}
+            >
+              {whiteContrast}:1
+            </div>
           </div>
-          <div
-            className="ratio"
-            title={formatPair(first, 'white')}
-            style={{ color: 'white' }}
-          >
-            {whiteContrast}:1
-          </div>
-        </div>
+        </Tooltip>
       )
     }
 
@@ -207,22 +240,6 @@ type Props = {
   minimumContrast: number | 'not set' | 'invalid'
 }
 
-const TypeBlock: React.FC<{ foreground?: string; background: string }> = ({
-  foreground,
-  background
-}) => {
-  return (
-    <div
-      style={{
-        color: foreground,
-        backgroundColor: background,
-        height: 100,
-        width: 100
-      }}
-    ></div>
-  )
-}
-
 const Colors = (props: Props) => {
   const {
     colors,
@@ -251,6 +268,7 @@ const Colors = (props: Props) => {
               i={i}
               j={j}
               minContrast={minimumContrast}
+              titles={titles}
             />
           ))
         ])}
@@ -262,11 +280,11 @@ const Colors = (props: Props) => {
     <div
       className="colors"
       style={{
-        gridTemplateColumns: `30px repeat(${colors.length}, max-content)`
+        gridTemplateColumns: `repeat(${colors.length + 1}, max-content)`
       }}
     >
       {[
-        <div key="placeholder" />,
+        <div key="placeholder" className="placeholder" />,
         ...colors.map((color, index) => (
           <ColorEntry
             key={index}

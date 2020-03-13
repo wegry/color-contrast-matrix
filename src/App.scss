@@ -1,33 +1,19 @@
-button {
-  height: 28px;
-  white-space: nowrap;
-  border-radius: 4px;
-  border: 0;
-  padding: 0 12px;
-  transition: all 70ms ease-in-out;
-  background-color: #efefef;
-
-  &:hover {
-    filter: brightness(0.9);
-  }
-
-  &:active {
-    filter: brightness(0.8);
-  }
-}
-
 .app {
+  min-width: 100vw;
+  height: fit-content;
+  width: fit-content;
   padding: 8px 32px;
   display: grid;
   column-gap: 32px;
-  row-gap: 32px;
+  row-gap: 16px;
   grid-template:
-    '.                title' auto
-    'min-contrast colors' min-content
-    'add-color-button colors' min-content
-    'bulk-edit        colors' auto
-    '.                colors' auto
-    / max-content 1fr;
+    '.                title code' auto
+    'min-contrast     colors colors' min-content
+    'add-color-button colors colors' min-content
+    'bulk-edit        colors colors' min-content
+    'comparison-select colors colors' min-content
+    '.                colors colors' auto
+    / max-content max-content 1fr;
 }
 
 .app.grayscale {
@@ -40,6 +26,14 @@ h1 {
   height: 40px;
   display: flex;
   align-items: flex-end;
+}
+
+.code {
+  display: flex;
+  width: fit-content;
+  grid-area: code;
+  justify-self: flex-end;
+  align-items: center;
 }
 
 label div {
@@ -87,6 +81,10 @@ label div:first-of-type {
   grid-column-gap: 8px;
 }
 
+.comparison-select {
+  grid-area: comparison-select;
+}
+
 .contrast-display {
   display: grid;
   justify-items: center;
@@ -94,7 +92,7 @@ label div:first-of-type {
   row-gap: 4px;
 }
 
-.colors > * {
+.colors:not(.type) > * {
   justify-self: center;
   height: 80px;
   width: 80px;
@@ -110,8 +108,8 @@ label div:first-of-type {
 
 .type-swatch {
   font-family: monospace;
-  height: 100px;
-  width: 100px;
+  height: 120px;
+  width: 120px;
   padding: 8px;
   position: relative;
 }
