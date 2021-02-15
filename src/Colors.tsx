@@ -1,28 +1,18 @@
 import React from 'react'
-import {
-  hexToRgb,
-  triple,
-  contrast,
-  validateColor,
-  luminance,
-  setBackgroundColor,
-  borderColor,
-  normalizeHex
-} from './color'
+import { setBackgroundColor, borderColor } from './color'
+import { toHex, getContrast, getLuminance } from 'color2k'
 
-import * as _ from 'lodash-es'
-
-import { TextField, Tooltip } from '@material-ui/core'
+import { Input, Tooltip } from '@material-ui/core'
 
 const formatDecimal = Intl.NumberFormat([], {
   maximumFractionDigits: 3,
-  maximumSignificantDigits: 3
+  maximumSignificantDigits: 3,
 })
 
 const formatPercentage = Intl.NumberFormat([], {
   maximumFractionDigits: 3,
   maximumSignificantDigits: 3,
-  style: 'percent'
+  style: 'percent',
 })
 
 type indexClosure = (index: number) => () => void
@@ -54,22 +44,12 @@ const ColorEntry: React.FC<{
 }> = React.memo(({ color, index, onChange, removeHandler, titles }) => {
   return (
     <div className="color-entry">
-      <Swatch
-        titles={titles}
-        onClick={removeHandler}
-        color={color}
-        index={index}
-      />
-      <TextField
-        spellCheck={false}
-        placeholder="#000000"
-        value={color}
-        onChange={event => onChange(event.target.value, index)}
-        onPaste={event => {
-          onChange(
-            normalizeHex(event.clipboardData.getData('text').trim()),
-            index
-          )
+      <Input
+        type="color"
+        value={toHex(color)}
+        onChange={(event) => onChange(event.target.value, index)}
+        onPaste={(event) => {
+          onChange(toHex(event.clipboardData.getData('text').trim()), index)
           event.preventDefault()
         }}
       />
@@ -77,30 +57,8 @@ const ColorEntry: React.FC<{
   )
 })
 
-const rgbExtractor = (first: string, second: string) => {
-  return [first.trim(), second.trim()].flatMap(c => {
-    const result = validateColor(c)
-
-    if (result != null) {
-      const asRgb = hexToRgb(result)
-
-      if (asRgb) {
-        return [asRgb]
-      }
-    }
-    return []
-  })
-}
-
-const shouldDisplay = (rgbs: triple[]) => {
-  if (
-    new Set(rgbs.map(c => c.join())).size === 1 ||
-    rgbs.some(c => c.length < 3)
-  ) {
-    return false
-  }
-
-  if (rgbs.some(x => x == null) || rgbs.length !== 2) {
+const shouldDisplay = (first: string, second: string) => {
+  if (!first || !second) {
     return false
   }
 
@@ -121,23 +79,15 @@ const ContrastDisplay: React.FC<{
   titles?: Map<string, string>
 }> = React.memo(
   ({ first, second, comparison = 'swatch', j, minContrast, titles }) => {
-    const rgbs = rgbExtractor(first, second)
-
-    if (!shouldDisplay(rgbs)) {
+    if (!shouldDisplay(first, second)) {
       return <div className="placeholder" />
     }
 
-    const rawContrast = contrast(...rgbs),
+    const rawContrast = getContrast(first, second),
       contrastRatio = formatDecimal.format(rawContrast),
-      blackContrast = formatDecimal.format(
-        contrast(...rgbExtractor(second, 'black'))
-      ),
-      whiteContrast = formatDecimal.format(
-        contrast(...rgbExtractor(second, 'white'))
-      ),
-      lastRgb = _.last(rgbs)!,
-      luminance_ =
-        lastRgb?.length === 3 ? luminance.apply(null, lastRgb) : 'invalid'
+      blackContrast = formatDecimal.format(getContrast(second, 'black')),
+      whiteContrast = formatDecimal.format(getContrast(second, 'white')),
+      luminance_ = getLuminance(second)
 
     const contrastThresholdClass = (() => {
       switch (minContrast) {
@@ -157,7 +107,7 @@ const ContrastDisplay: React.FC<{
             key={first + second + j}
             style={{
               backgroundColor: second,
-              boxShadow: `inset 8px -8px ${first}`
+              boxShadow: `inset 8px -8px ${first}`,
             }}
           >
             <div
@@ -183,7 +133,7 @@ const ContrastDisplay: React.FC<{
                     ? luminance_ > 0.5
                       ? 'black'
                       : 'white'
-                    : 'black'
+                    : 'black',
               }}
             >
               {typeof luminance_ === 'number'
@@ -204,7 +154,7 @@ const ContrastDisplay: React.FC<{
 
     const boxShadow = [
       [borderColor(second), 'light-column'],
-      [borderColor(first), 'light-row']
+      [borderColor(first), 'light-row'],
     ].flatMap(([borderColor, borderClassName]) =>
       borderColor === undefined ? [] : [borderClassName]
     )
@@ -222,7 +172,7 @@ const ContrastDisplay: React.FC<{
           className={`swatch ${contrastThresholdClass} ${borderClasses}`.trim()}
           title={formatPair(first, second)}
           style={{
-            background: `linear-gradient(45deg, ${first} 50%, ${second} 50%)`
+            background: `linear-gradient(45deg, ${first} 50%, ${second} 50%)`,
           }}
         />
         <div> {contrastRatio}:1</div>
@@ -247,7 +197,7 @@ const Colors = (props: Props) => {
     editColor,
     minimumContrast,
     onSwatchClick,
-    titles
+    titles,
   } = props
 
   if (comparison === 'type') {
@@ -255,7 +205,7 @@ const Colors = (props: Props) => {
       <div
         className="colors type"
         style={{
-          gridTemplateColumns: `repeat(${colors.length}, max-content)`
+          gridTemplateColumns: `repeat(${colors.length}, max-content)`,
         }}
       >
         {colors.flatMap((first, i) => [
@@ -270,7 +220,7 @@ const Colors = (props: Props) => {
               minContrast={minimumContrast}
               titles={titles}
             />
-          ))
+          )),
         ])}
       </div>
     )
@@ -280,7 +230,7 @@ const Colors = (props: Props) => {
     <div
       className="colors"
       style={{
-        gridTemplateColumns: `repeat(${colors.length + 1}, max-content)`
+        gridTemplateColumns: `repeat(${colors.length + 1}, max-content)`,
       }}
     >
       {[
@@ -294,7 +244,7 @@ const Colors = (props: Props) => {
             index={index}
             onChange={editColor}
           />
-        ))
+        )),
       ]}
       {colors.flatMap((first, i) => [
         <Swatch
@@ -313,7 +263,7 @@ const Colors = (props: Props) => {
             j={j}
             minContrast={minimumContrast}
           />
-        ))
+        )),
       ])}
     </div>
   )

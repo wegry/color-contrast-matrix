@@ -98,10 +98,12 @@ label div:first-of-type {
   width: 80px;
 }
 
+$swatch-height: 30px;
+
 .swatch {
   transition: color 70ms;
-  height: 30px;
-  width: 30px;
+  height: $swatch-height;
+  width: $swatch-height;
   border: 1px solid white;
   border-radius: 4px;
 }
@@ -147,6 +149,11 @@ label div:first-of-type {
   row-gap: 10px;
   width: 80px;
   justify-items: center;
+}
+
+input[type='color'] {
+  height: $swatch-height;
+  width: $swatch-height;
 }
 
 .light-column {

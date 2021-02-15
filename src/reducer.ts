@@ -1,3 +1,7 @@
+import { debounce } from 'lodash-es'
+import { createBrowserHistory } from 'history'
+const history = createBrowserHistory()
+
 interface state {
   colors: string[]
   titles: Map<string, string>
@@ -29,7 +33,7 @@ function attemptTitlesParse(rawParams: string) {
       titles
         .split('|')
         .map(
-          titleByColor => titleByColor.split(kvSeparator) as [string, string]
+          (titleByColor) => titleByColor.split(kvSeparator) as [string, string]
         )
     )
   }
@@ -48,10 +52,15 @@ export const initialState: state = {
   grayscale: attemptGrayscaleParse(window.location.search),
   titles: attemptTitlesParse(window.location.search) ?? new Map(),
   bulkEditValue: seychellesFlagColors.join('\n'),
-  comparison: 'type'
+  comparison: 'type',
 }
 
-function updateQueryParams(colors: string[] | Map<string, string>) {
+const throttledPushState = debounce(history.push, 100, {
+  leading: true,
+  trailing: true,
+})
+
+const updateQueryParams = (colors: string[] | Map<string, string>) => {
   setTimeout(() => {
     // https://stackoverflow.com/a/41542008/1924257
     const searchParams = new URLSearchParams(window.location.search)
@@ -61,7 +70,7 @@ function updateQueryParams(colors: string[] | Map<string, string>) {
     if (colors instanceof Map) {
       const colorsStringified = Array.from(colors.keys()).join('|')
       const titlesStringified = Array.from(colors.entries())
-        .flatMap(p => {
+        .flatMap((p) => {
           const [, v] = p
 
           if (v) {
@@ -81,7 +90,7 @@ function updateQueryParams(colors: string[] | Map<string, string>) {
       window.location.pathname
     }?${searchParams.toString()}`
 
-    window.history.pushState(null, '', newRelativePathQuery)
+    throttledPushState(newRelativePathQuery)
   }, 0)
 }
 
@@ -104,14 +113,14 @@ export function reducer(state: state, action: action): state {
 
       return {
         ...state,
-        colors: newColors
+        colors: newColors,
       }
     }
     case 'bulk-add-colors': {
       const newColors = (() => {
         const candidates: [string, string][] = state.bulkEditValue
           .split('\n')
-          .flatMap(c => {
+          .flatMap((c) => {
             const result = /^(.[^#]+)(?: +#(.*))?$/gm.exec(c)!
             console.log({ c, result })
 
@@ -147,13 +156,13 @@ export function reducer(state: state, action: action): state {
         ...state,
         bulkEditValue: state.bulkEditValue.trim(),
         colors: colorArray,
-        titles: new Map(newColors ?? new Map())
+        titles: new Map(newColors ?? new Map()),
       }
     }
     case 'bulk-edit-existing-colors':
       return {
         ...state,
-        bulkEditValue: state.colors.join('\n')
+        bulkEditValue: state.colors.join('\n'),
       }
     case 'editColor':
       const newColors = [...state.colors]
@@ -163,7 +172,7 @@ export function reducer(state: state, action: action): state {
 
       return {
         ...state,
-        colors: newColors
+        colors: newColors,
       }
     case 'removeColor': {
       let newColors = ['']
@@ -175,7 +184,7 @@ export function reducer(state: state, action: action): state {
 
       return {
         ...state,
-        colors: newColors
+        colors: newColors,
       }
     }
 
