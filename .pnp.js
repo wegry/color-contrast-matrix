@@ -45,6 +45,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@types/react-dom", "npm:16.8.4"],
             ["@yarnpkg/pnpify", "virtual:d8b10ad7e877ac3dfc22aadd60a58d10368b603706a00f7199e49e62231dbbac48f1447bc9b47e2577416822556db1aa04d3f463bd8555f81e3158244f29dda7#npm:2.0.0-rc.18"],
             ["color2k", "npm:1.2.2"],
+            ["history", "npm:5.0.0"],
             ["lodash-es", "npm:4.17.15"],
             ["react", "npm:16.12.0"],
             ["react-dom", "virtual:d8b10ad7e877ac3dfc22aadd60a58d10368b603706a00f7199e49e62231dbbac48f1447bc9b47e2577416822556db1aa04d3f463bd8555f81e3158244f29dda7#npm:16.12.0"],
@@ -2097,6 +2098,14 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]
       ]],
       ["@babel/runtime", [
+        ["npm:7.12.13", {
+          "packageLocation": "./.yarn/cache/@babel-runtime-npm-7.12.13-e5235eed9c-52e8ac97f5.zip/node_modules/@babel/runtime/",
+          "packageDependencies": [
+            ["@babel/runtime", "npm:7.12.13"],
+            ["regenerator-runtime", "npm:0.13.7"]
+          ],
+          "linkType": "HARD",
+        }],
         ["npm:7.8.4", {
           "packageLocation": "./.yarn/cache/@babel-runtime-npm-7.8.4-e3028a5d42-e81c601fd2.zip/node_modules/@babel/runtime/",
           "packageDependencies": [
@@ -8399,6 +8408,16 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "linkType": "HARD",
         }]
       ]],
+      ["history", [
+        ["npm:5.0.0", {
+          "packageLocation": "./.yarn/cache/history-npm-5.0.0-7080f2503f-38a8af6f31.zip/node_modules/history/",
+          "packageDependencies": [
+            ["history", "npm:5.0.0"],
+            ["@babel/runtime", "npm:7.12.13"]
+          ],
+          "linkType": "HARD",
+        }]
+      ]],
       ["hmac-drbg", [
         ["npm:1.0.1", {
           "packageLocation": "./.yarn/cache/hmac-drbg-npm-1.0.1-3499ad31cd-729d5a55bf.zip/node_modules/hmac-drbg/",
@@ -14156,6 +14175,13 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["regenerator-runtime", "npm:0.13.3"]
           ],
           "linkType": "HARD",
+        }],
+        ["npm:0.13.7", {
+          "packageLocation": "./.yarn/cache/regenerator-runtime-npm-0.13.7-41bcbe64ea-6ef567c662.zip/node_modules/regenerator-runtime/",
+          "packageDependencies": [
+            ["regenerator-runtime", "npm:0.13.7"]
+          ],
+          "linkType": "HARD",
         }]
       ]],
       ["regenerator-transform", [
@@ -14543,6 +14569,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@types/react-dom", "npm:16.8.4"],
             ["@yarnpkg/pnpify", "virtual:d8b10ad7e877ac3dfc22aadd60a58d10368b603706a00f7199e49e62231dbbac48f1447bc9b47e2577416822556db1aa04d3f463bd8555f81e3158244f29dda7#npm:2.0.0-rc.18"],
             ["color2k", "npm:1.2.2"],
+            ["history", "npm:5.0.0"],
             ["lodash-es", "npm:4.17.15"],
             ["react", "npm:16.12.0"],
             ["react-dom", "virtual:d8b10ad7e877ac3dfc22aadd60a58d10368b603706a00f7199e49e62231dbbac48f1447bc9b47e2577416822556db1aa04d3f463bd8555f81e3158244f29dda7#npm:16.12.0"],

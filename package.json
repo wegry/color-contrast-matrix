@@ -11,6 +11,7 @@
     "@types/react-dom": "16.8.4",
     "@yarnpkg/pnpify": "^2.0.0-rc.18",
     "color2k": "^1.2.2",
+    "history": "^5.0.0",
     "lodash-es": "^4.17.14",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
